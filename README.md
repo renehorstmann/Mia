@@ -62,35 +62,6 @@ An App can also be started as full opaque scene on top of another game or app.
   - State: Work in Progress
   - [Mia Paint doc](doc/miapaint.md)
 
-
-## todo
-
-- android 
-  - template test
-  - release tea app
-  
-- docs for default hello world main.c
-  
-
-- prepare mia release 
-  - new public repo or new private?
-
-- module s(ound)
-  - STrackOsc(ilator)?
-    - wave, block, saw, triangle (ramp)...
-    - if freq is changed, the signal t shouldn't be effected...
-    - show in waveform
-    - test fade filter
-  - SFilterConv
-    - maybe needs a u_kernel or smth?
-      - low pass
-      - high pass
-      - band pass
-      - band reject
-  - STrackSynth?
-    - midi?
-
-
 ## Author
 René Horstmann *aka* Horsimann
 
