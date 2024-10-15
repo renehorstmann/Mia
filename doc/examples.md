@@ -46,6 +46,8 @@ Single file and well documented mini app.
 
 > Here's the [tea timer web app](https://horsimann.de/tea)
 
+> And here's the [tea timer android app](https://play.google.com/store/apps/details?id=de.horsimann.tea)
+
 
 ## Disabling example compilation
 
