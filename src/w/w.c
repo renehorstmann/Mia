@@ -1,0 +1,30 @@
+#ifdef MIA_BUNDLE_W
+
+#include "WAlign.c"
+#include "WBox.c"
+#include "WBtn.c"
+#include "WClick.c"
+#include "WColor.c"
+#include "WDrag.c"
+#include "WFrame.c"
+#include "WGradient.c"
+#include "WGrid.c"
+#include "WIcon.c"
+#include "WImg.c"
+#include "WImgPicker.c"
+#include "WNum.c"
+#include "WObj.c"
+#include "WPane.c"
+#include "WProgress.c"
+#include "WSlider.c"
+#include "WStack.c"
+#include "WStyle.c"
+#include "WText.c"
+#include "WTextShadow.c"
+#include "WTheme.c"
+#include "WView.c"
+#include "WWindow.c"
+#include "WWindowDialog.c"
+
+#endif
+typedef int avoid_empty_translation_unit;

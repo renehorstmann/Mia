@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme. -->
+    
+    <!--@@@USE_FULLSCREEN@@@
+    <style name="AppTheme" parent="android:Theme.Black.NoTitleBar.Fullscreen">
+    @@@USE_FULLSCREEN@@@-->
+    
+    <!--@@@USE_WINDOW@@@
+    <style name="AppTheme" parent="android:Theme.Black.NoTitleBar">
+    @@@USE_WINDOW@@@-->
+    
+    
+        <!-- Customize your theme here. -->
+    </style>
+</resources>
