@@ -13,10 +13,10 @@
 
 
 /** Includes the Examples App and Tea App (which is part of the examples) */
-#include "ex/ex.h"
+#include "app/ex/ex.h"
 
 /** Includes Mia Paint */
-#include "mp/mp.h"
+#include "app/mp/mp.h"
 
 
 /**
@@ -98,16 +98,16 @@ void app_main(oobj root)
      */
 
     /** Examples */
-    //ex_main(root);
-    //return;
+    ex_main(root);
+    return;
 
     /** Tea Timer */
     //ex_tea_main_splashed(root);
     //return;
 
     /** Mia Paint */
-    //mp_main(root);
-    //return;
+    mp_main(root);
+    return;
 
 
 

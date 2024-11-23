@@ -1,4 +1,4 @@
-#ifdef MIA_BUNDLE_EX
+#ifdef MIA_BUNDLE_APP_EX
 
 #include "ex_00_hello_world.c"
 #include "ex_01_pointers.c"
@@ -13,6 +13,7 @@
 #include "EXViewClose.c"
 #include "main.c"
 #include "tea.c"
+#include "thunder.c"
 
 #endif
 typedef int avoid_empty_translation_unit;

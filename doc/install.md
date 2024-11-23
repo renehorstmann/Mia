@@ -88,7 +88,7 @@ export PATH=$PATH:/c/msys64/mingw64/x86_64-w64-mingw32/lib
 In Ubuntu, WSL Ubuntu or "MSYS2 MinGW x64" Terminal:
 ```sh
 #   clone the repo
-git clone git@github.com:renehorstmann/Mia.git
+git clone https://github.com/renehorstmann/Mia.git
 #   mv and make a build dir
 cd Mia && mkdir build && cd build
 #   run cmake debug
@@ -142,7 +142,7 @@ cd C:\dev\vcpkg
 In the Powershell Terminal:
 ```sh
 #   clone the repo
-git clone git@github.com:renehorstmann/Mia.git
+git clone https://github.com/renehorstmann/Mia.git
 #   mv and make a build dir
 cd mia 
 mkdir build
@@ -193,7 +193,7 @@ cd ~/storage/shared
 #   optional, create a c projects folder
 mkdir cprojects && cd cprojects
 #   clone the repo
-git clone git@github.com:renehorstmann/Mia.git
+git clone https://github.com/renehorstmann/Mia.git
 ```
 - In CxxDroid, install the following libraries (Menu/Install Libraries)
     - SDL2

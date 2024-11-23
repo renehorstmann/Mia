@@ -1,4 +1,4 @@
-#include "ex/main.h"
+#include "app/ex/main.h"
 #include "o/img.h"
 #include "m/utils/color.h"
 #include "r/RTex.h"
@@ -11,10 +11,10 @@
 #include "w/WBox.h"
 #include "w/WBtn.h"
 #include "w/WTextShadow.h"
-#include "ex/EXViewClose.h"
+#include "app/ex/EXViewClose.h"
 
 
-#define NUM_EXAMPLES 11
+#define NUM_EXAMPLES 12
 
 // protected example functions
 O_EXTERN oobj ex_00_main(oobj root);
@@ -28,6 +28,7 @@ O_EXTERN oobj ex_07_main(oobj root);
 O_EXTERN oobj ex_08_main(oobj root);
 O_EXTERN oobj ex_09_main(oobj root);
 O_EXTERN oobj ex_tea_main(oobj root);
+O_EXTERN oobj ex_thunder_main(oobj root);
 
 static const char *example_titles[] = {
         "00_hello_world",
@@ -40,7 +41,8 @@ static const char *example_titles[] = {
         "07_xtras",
         "08_fetching",
         "09_upndownload",
-        " ~ tea app ~ "
+        " ~ tea app ~ ",
+        " # thunder app # ",
 };
 
 // list all functions in an array
@@ -55,7 +57,8 @@ static oobj (*example_functions[])(oobj root) = {
         ex_07_main,
         ex_08_main,
         ex_09_main,
-        ex_tea_main
+        ex_tea_main,
+        ex_thunder_main,
 
 };
 

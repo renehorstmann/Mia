@@ -16,6 +16,7 @@
 
 #include "main.h"
 #include "tea.h"
+#include "thunder.h"
 
 
 //

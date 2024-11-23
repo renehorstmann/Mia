@@ -23,7 +23,6 @@
 #include "r/program.h"
 
 
-
 static struct {
     oobj bound_tex;
     bool bound_valid;
@@ -41,9 +40,8 @@ static struct {
 } RTex_L;
 
 O_STATIC
-GLenum format_channels(enum r_format format)
-{
-    switch(format) {
+GLenum format_channels(enum r_format format) {
+    switch (format) {
         case R_FORMAT_R_8:
         case R_FORMAT_R_32F:
             return GL_RED;
@@ -59,10 +57,9 @@ GLenum format_channels(enum r_format format)
 }
 
 O_STATIC
-GLenum format_size(enum r_format format)
-{
-    switch(format) {
-        case R_FORMAT_R_8:;
+GLenum format_size(enum r_format format) {
+    switch (format) {
+        case R_FORMAT_R_8: ;
         case R_FORMAT_RGBA_8:
             return GL_UNSIGNED_BYTE;
         case R_FORMAT_R_32F:
@@ -78,9 +75,8 @@ GLenum format_size(enum r_format format)
 
 
 O_STATIC
-GLint format_internal(enum r_format format)
-{
-    switch(format) {
+GLint format_internal(enum r_format format) {
+    switch (format) {
         case R_FORMAT_R_8:
             return GL_R8;
         case R_FORMAT_R_32F:
@@ -98,10 +94,9 @@ GLint format_internal(enum r_format format)
 }
 
 
-
 O_STATIC
 void update_fbo(RTex *self, int requested_num_draw_buffers) {
-    if(!self->fbo) {
+    if (!self->fbo) {
         // create a new fbo and proj
         self->fbo = o_new0(self, struct RTex_fbo, 1);
         self->fbo->proj = r_proj_new(RTex_size_int(self), vec2_(-1), true);
@@ -110,7 +105,7 @@ void update_fbo(RTex *self, int requested_num_draw_buffers) {
 
     ou32 attachment1 = 0;
     RTex *attached_tex = OPtr_get(self->attached_tex_ptr).o;
-    if(requested_num_draw_buffers == 2 && OObj_check(attached_tex, RTex)) {
+    if (requested_num_draw_buffers == 2 && OObj_check(attached_tex, RTex)) {
         attachment1 = attached_tex->gl_tex;
     }
 
@@ -134,7 +129,7 @@ void update_fbo(RTex *self, int requested_num_draw_buffers) {
         case GL_FRAMEBUFFER_UNSUPPORTED:
             o_log_error_s("RTex fbo", "Framebuffer unsupported");
             break;
-        case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE :
+        case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
             o_log_error_s("RTex fbo", "Framebuffer incomplete multisample");
             break;
         case 0:
@@ -146,18 +141,17 @@ void update_fbo(RTex *self, int requested_num_draw_buffers) {
             break;
     }
 
-    if(OObj_check(OPtr_get(self->attached_tex_ptr).o, RTex)) {
-        glDrawBuffers(2, (GLenum[]) {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1});
+    if (OObj_check(OPtr_get(self->attached_tex_ptr).o, RTex)) {
+        glDrawBuffers(2, (GLenum[]){GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1});
     } else {
-        glDrawBuffers(1, (GLenum[]) {GL_COLOR_ATTACHMENT0});
+        glDrawBuffers(1, (GLenum[]){GL_COLOR_ATTACHMENT0});
     }
 }
 
 
 // protected
 O_EXTERN
-void RTex__init(void)
-{
+void RTex__init(void) {
     // get the default back framebuffer
     GLint current_fbo;
     glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &current_fbo);
@@ -180,8 +174,7 @@ void RTex__init(void)
 
 // protected
 O_EXTERN
-ou32 RTex__bound_gl(void)
-{
+ou32 RTex__bound_gl(void) {
     // NULL safe -> 0
     return RTex_tex(RTex_L.bound_tex);
 }
@@ -192,8 +185,7 @@ ou32 RTex__bound_gl(void)
 
 
 RTex *RTex_init_ex(oobj obj, oobj parent, const void *opt_buffer, int cols, int rows,
-                   enum r_format internal_format, enum r_format format)
-{
+                   enum r_format internal_format, enum r_format format) {
     // will also internally assert...
     assert(r_format_size(format) > 0);
 
@@ -212,7 +204,7 @@ RTex *RTex_init_ex(oobj obj, oobj parent, const void *opt_buffer, int cols, int 
     // deletor
     self->super.v_del = RTex__v_del;
 
-    if(cols <= 0 || rows <= 0) {
+    if (cols <= 0 || rows <= 0) {
         o_log_warn_s(__func__, "invalid");
         self->gl_tex = 0;
         return self;
@@ -224,7 +216,7 @@ RTex *RTex_init_ex(oobj obj, oobj parent, const void *opt_buffer, int cols, int 
     glBindTexture(GL_TEXTURE_2D, self->gl_tex);
 
     // default may be that new rows are not byte aligned, so 1 for byte aligned if format is R_FORMAT_R_8
-    glPixelStorei(GL_UNPACK_ALIGNMENT, self->format==R_FORMAT_R_8? 1 : 4);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, self->format == R_FORMAT_R_8 ? 1 : 4);
     // safe to pass NULL as opt_buffer
     glTexImage2D(GL_TEXTURE_2D, 0, format_internal(internal_format),
                  self->size.x, self->size.y,
@@ -241,88 +233,84 @@ RTex *RTex_init_ex(oobj obj, oobj parent, const void *opt_buffer, int cols, int 
     return self;
 }
 
-RTex* RTex_new_file(oobj parent, const char* file)
-{
+RTex *RTex_new_file(oobj parent, const char *file) {
     struct o_img image = o_img_new_file(parent, file);
-    if(!image.rgba_data) {
+    if (!image.rgba_data) {
         o_log_warn_s(__func__, "failed to create RTex from file: %s", file);
         // return invalid RTex and not NULL, because NULL is the back buffer...
         return RTex_new_ex(parent, NULL, 0, 0, R_FORMAT_RGBA_8, R_FORMAT_RGBA_8);
     }
     RTex *self = RTex_new_ex(parent, image.rgba_data, image.cols, image.rows,
-                              R_FORMAT_RGBA_8, R_FORMAT_RGBA_8);
+                             R_FORMAT_RGBA_8, R_FORMAT_RGBA_8);
     o_img_free(&image);
     return self;
 }
 
-RTex* RTex_new_blit_back(oobj parent)
-{
+RTex *RTex_new_blit_back(oobj parent) {
     RTex *self = RTex_new(parent, NULL, m_2(r_back_size_int()));
     RTex_blit_back(self, RTex_filter_NEAREST);
     return self;
 }
 
-RTex *RTex_new_kernel(oobj parent, int cols, int rows, float set, bool plus, float normalize)
-{
+RTex *RTex_new_kernel(oobj parent, int cols, int rows, float set, bool plus, float normalize) {
     cols = o_max(cols, 1);
     rows = o_max(rows, 1);
 
     float *buffer = o_new(parent, float, cols*rows);
-    vecn_set(buffer, set, cols*rows);
-    if(plus) {
+    vecn_set(buffer, set, cols * rows);
+    if (plus) {
         buffer[0] = 0.0f;
-        buffer[cols-1] = 0.0f;
-        buffer[(rows-1)*cols] = 0.0f;
-        buffer[rows*cols-1] = 0.0f;
+        buffer[cols - 1] = 0.0f;
+        buffer[(rows - 1) * cols] = 0.0f;
+        buffer[rows * cols - 1] = 0.0f;
     }
-    
-    if(normalize > 0.0f) {
-        float sum = vecn_sum(buffer, cols*rows);
-        vecn_scale(buffer, buffer, normalize/sum, cols*rows);
+
+    if (normalize > 0.0f) {
+        float sum = vecn_sum(buffer, cols * rows);
+        vecn_scale(buffer, buffer, normalize / sum, cols * rows);
     }
-    
+
     RTex *self = RTex_new_ex(parent, buffer, cols, rows,
-            R_FORMAT_R_32F, R_FORMAT_R_32F);
+                             R_FORMAT_R_32F, R_FORMAT_R_32F);
     o_free(parent, buffer);
     return self;
 }
 
-RTex *RTex_new_kernel_gauss(oobj parent, int cols, int rows, vec2 sigma, float normalize)
-{
+RTex *RTex_new_kernel_gauss(oobj parent, int cols, int rows, vec2 sigma, float normalize) {
     cols = o_max(cols, 1);
     rows = o_max(rows, 1);
 
     float *buffer = o_new(parent, float, cols*rows);
-    
-    sigma.x = sigma.x > 0 ? sigma.x : ((cols-1)*0.5 - 1)*0.3 + 0.8;
-    sigma.y = sigma.y > 0 ? sigma.y : ((rows-1)*0.5 - 1)*0.3 + 0.8;
-    
-    float scale_x = -0.5/(sigma.x*sigma.x);
-    float scale_y = -0.5/(sigma.y*sigma.y);
-    
+
+    sigma.x = sigma.x > 0 ? sigma.x : ((cols - 1) * 0.5 - 1) * 0.3 + 0.8;
+    sigma.y = sigma.y > 0 ? sigma.y : ((rows - 1) * 0.5 - 1) * 0.3 + 0.8;
+
+    float scale_x = -0.5 / (sigma.x * sigma.x);
+    float scale_y = -0.5 / (sigma.y * sigma.y);
+
     int center_r = rows / 2;
     int center_c = cols / 2;
-    
-    for(int r = 0; r < rows; r++) {
-        for(int c = 0; c < cols; c++) {
+
+    for (int r = 0; r < rows; r++) {
+        for (int c = 0; c < cols; c++) {
             float x = c - center_c;
             float y = r - center_r;
-            float t_x = m_exp(scale_x*x*x);
-            float t_y = m_exp(scale_y*y*y);
-            
+            float t_x = m_exp(scale_x * x * x);
+            float t_y = m_exp(scale_y * y * y);
+
             float value = t_x * t_y;
-           
+
             buffer[r * cols + c] = m_clamp(value, 0, 1);
         }
     }
-    
-    if(normalize > 0.0f) {
-        float sum = vecn_sum(buffer, cols*rows);
-        vecn_scale(buffer, buffer, normalize/sum, cols*rows);
+
+    if (normalize > 0.0f) {
+        float sum = vecn_sum(buffer, cols * rows);
+        vecn_scale(buffer, buffer, normalize / sum, cols * rows);
     }
-    
+
     RTex *self = RTex_new_ex(parent, buffer, cols, rows,
-            R_FORMAT_R_32F, R_FORMAT_R_32F);
+                             R_FORMAT_R_32F, R_FORMAT_R_32F);
     o_free(parent, buffer);
     return self;
 }
@@ -331,11 +319,10 @@ RTex *RTex_new_kernel_gauss(oobj parent, int cols, int rows, vec2 sigma, float n
 // virtual implementations:
 //
 
-void RTex__v_del(oobj obj)
-{
+void RTex__v_del(oobj obj) {
     OObj_assert(obj, RTex);
     RTex *self = obj;
-    
+
     // deletes fbo, if available
     RTex_use_done(self);
     // safe for 0
@@ -349,9 +336,8 @@ void RTex__v_del(oobj obj)
 // object functions:
 //
 
-ivec4 RTex_viewport(oobj obj)
-{
-    if(!obj) {
+ivec4 RTex_viewport(oobj obj) {
+    if (!obj) {
         return RTex_L.back_viewport;
     }
     OObj_assert(obj, RTex);
@@ -359,10 +345,9 @@ ivec4 RTex_viewport(oobj obj)
     return self->viewport;
 }
 
-ivec4 RTex_viewport_set(oobj obj, ivec4 set)
-{
+ivec4 RTex_viewport_set(oobj obj, ivec4 set) {
     RTex_L.bound_valid = false;
-    if(!obj) {
+    if (!obj) {
         RTex_L.back_viewport = set;
         return RTex_L.back_viewport;
     }
@@ -372,8 +357,7 @@ ivec4 RTex_viewport_set(oobj obj, ivec4 set)
     return self->viewport;
 }
 
-ivec4 RTex_viewport_set_pose_aa(oobj obj, mat4 pose_aa)
-{
+ivec4 RTex_viewport_set_pose_aa(oobj obj, mat4 pose_aa) {
     // according to u/pose.h
     vec4 lbwh = vec4_(pose_aa.m30 - pose_aa.m00,
                       pose_aa.m31 - pose_aa.m11,
@@ -382,8 +366,7 @@ ivec4 RTex_viewport_set_pose_aa(oobj obj, mat4 pose_aa)
     return RTex_viewport_set(obj, r_proj_lbwh_to_viewport(RTex_proj(obj), lbwh, NULL));
 }
 
-ivec4 RTex_viewport_set_rect(oobj obj, vec4 rect)
-{
+ivec4 RTex_viewport_set_rect(oobj obj, vec4 rect) {
     // according to u/rect.h
     vec4 lbwh = vec4_(rect.x - rect.v2/2.0,
                       rect.y - rect.v3/2.0,
@@ -392,13 +375,12 @@ ivec4 RTex_viewport_set_rect(oobj obj, vec4 rect)
     return RTex_viewport_set(obj, r_proj_lbwh_to_viewport(RTex_proj(obj), lbwh, NULL));
 }
 
-void RTex_wrap_set(oobj obj, enum RTex_wrap_modes mode)
-{
+void RTex_wrap_set(oobj obj, enum RTex_wrap_modes mode) {
     OObj_assert(obj, RTex);
     RTex *self = obj;
     self->wrap_mode = mode;
     glBindTexture(GL_TEXTURE_2D, self->gl_tex);
-    if(self->wrap_mode == RTex_wrap_CLAMP) {
+    if (self->wrap_mode == RTex_wrap_CLAMP) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     } else {
@@ -408,13 +390,12 @@ void RTex_wrap_set(oobj obj, enum RTex_wrap_modes mode)
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void RTex_filter_set(oobj obj, enum RTex_filter_modes mode)
-{
+void RTex_filter_set(oobj obj, enum RTex_filter_modes mode) {
     OObj_assert(obj, RTex);
     RTex *self = obj;
     self->filter_mode = mode;
     glBindTexture(GL_TEXTURE_2D, self->gl_tex);
-    if(self->filter_mode == RTex_filter_LINEAR) {
+    if (self->filter_mode == RTex_filter_LINEAR) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     } else {
@@ -424,8 +405,7 @@ void RTex_filter_set(oobj obj, enum RTex_filter_modes mode)
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-oobj RTex_camera(oobj obj)
-{
+oobj RTex_camera(oobj obj) {
     OObj_assert(obj, RTex);
     RTex *self = obj;
     oobj cam = RCam_new(self, true, vec2_cast_int(self->size.v));
@@ -438,17 +418,23 @@ oobj RTex_camera(oobj obj)
 //
 
 
-void RTex_use(oobj obj, int requested_draw_buffers)
-{
-    if(!obj) {
-        if(requested_draw_buffers != 1) {
+void RTex_use(oobj obj, int requested_draw_buffers) {
+    if (!obj) {
+        if (requested_draw_buffers != 1) {
             o_log_warn_s(__func__, "using back buffer, but requested_draw_buffers!=1: %d", requested_draw_buffers);
         }
-        if(!RTex_L.bound_valid || RTex_L.bound_tex != NULL) {
+        if (!RTex_L.bound_valid || RTex_L.bound_tex != NULL) {
             RTex_L.bound_valid = true;
             RTex_L.bound_tex = NULL;
             glBindFramebuffer(GL_DRAW_FRAMEBUFFER, RTex_L.back_fbo);
-            glDrawBuffers(1, (GLenum[]) {GL_BACK});
+            
+            // gl deprecated using plain GL_BACK, but gles does not support GL_BACK_LEFT
+#ifdef MIA_OPTION_GLES
+            GLenum back_buffer = GL_BACK;
+#else
+            GLenum back_buffer = GL_BACK_LEFT;
+#endif
+            glDrawBuffers(1, (GLenum[]){back_buffer});
             glViewport(m_4(RTex_L.back_viewport));
             r_error_check("use back");
         }
@@ -458,7 +444,7 @@ void RTex_use(oobj obj, int requested_draw_buffers)
     OObj_assert(obj, RTex);
     RTex *self = obj;
 
-    if(!RTex_L.bound_valid || RTex_L.bound_tex != obj) {
+    if (!RTex_L.bound_valid || RTex_L.bound_tex != obj) {
         RTex_L.bound_valid = true;
         RTex_L.bound_tex = obj;
         update_fbo(self, requested_draw_buffers); // Ensure the framebuffer is created
@@ -469,11 +455,10 @@ void RTex_use(oobj obj, int requested_draw_buffers)
 }
 
 
-void RTex_use_done(oobj obj)
-{
+void RTex_use_done(oobj obj) {
     OObj_assert(obj, RTex);
     RTex *self = obj;
-    if(!self->fbo) {
+    if (!self->fbo) {
         return;
     }
     glDeleteFramebuffers(1, &self->fbo->gl_fbo);
@@ -481,8 +466,7 @@ void RTex_use_done(oobj obj)
     self->fbo = NULL;
 }
 
-void RTex_get_ex(oobj obj, void *out_buffer, enum r_format format)
-{
+void RTex_get_ex(oobj obj, void *out_buffer, enum r_format format) {
     OObj_assert(obj, RTex);
     RTex *self = obj;
     update_fbo(self, 1); // Ensure the framebuffer is created
@@ -490,7 +474,7 @@ void RTex_get_ex(oobj obj, void *out_buffer, enum r_format format)
     glBindTexture(GL_TEXTURE_2D, self->gl_tex);
     glBindFramebuffer(GL_READ_FRAMEBUFFER, self->fbo->gl_fbo);
     // default may be that new rows are not byte aligned, so 1 for byte aligned if format is R_FORMAT_R_8
-    glPixelStorei(GL_PACK_ALIGNMENT, self->format==R_FORMAT_R_8? 1 : 4);
+    glPixelStorei(GL_PACK_ALIGNMENT, self->format == R_FORMAT_R_8 ? 1 : 4);
     glReadBuffer(GL_COLOR_ATTACHMENT0);
     glReadPixels(0, 0, self->size.x, self->size.y,
                  format_channels(format), format_size(format),
@@ -499,13 +483,12 @@ void RTex_get_ex(oobj obj, void *out_buffer, enum r_format format)
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void RTex_set_ex(oobj obj, const void *buffer, enum r_format format)
-{
+void RTex_set_ex(oobj obj, const void *buffer, enum r_format format) {
     OObj_assert(obj, RTex);
     RTex *self = obj;
     glBindTexture(GL_TEXTURE_2D, self->gl_tex);
     // default may be that new rows are not byte aligned, so 1 for byte aligned if format is R_FORMAT_R_8
-    glPixelStorei(GL_UNPACK_ALIGNMENT, self->format==R_FORMAT_R_8? 1 : 4);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, self->format == R_FORMAT_R_8 ? 1 : 4);
     glTexSubImage2D(GL_TEXTURE_2D, 0,
                     0, 0, self->size.x, self->size.y,
                     format_channels(format), format_size(format),
@@ -513,8 +496,7 @@ void RTex_set_ex(oobj obj, const void *buffer, enum r_format format)
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-bool RTex_write_file(oobj obj, const char *file)
-{
+bool RTex_write_file(oobj obj, const char *file) {
     ivec2 size = RTex_size_int(obj);
     struct o_img img = o_img_new(obj, m_2(size));
     RTex_get(obj, img.rgba_data);
@@ -523,9 +505,8 @@ bool RTex_write_file(oobj obj, const char *file)
     return saved;
 }
 
-struct r_proj *RTex_proj(oobj obj)
-{
-    if(!obj) {
+struct r_proj *RTex_proj(oobj obj) {
+    if (!obj) {
         return r_back_proj();
     }
     OObj_assert(obj, RTex);
@@ -534,15 +515,13 @@ struct r_proj *RTex_proj(oobj obj)
     return &self->fbo->proj;
 }
 
-struct oobj_opt RTex_attach(oobj obj)
-{
+struct oobj_opt RTex_attach(oobj obj) {
     OObj_assert(obj, RTex);
     RTex *self = obj;
     return OPtr_get(self->attached_tex_ptr);
 }
 
-oobj RTex_attach_set(oobj obj, oobj opt_tex_attachment)
-{
+oobj RTex_attach_set(oobj obj, oobj opt_tex_attachment) {
     OObj_assert(obj, RTex);
     RTex *self = obj;
     OPtr_set(self->attached_tex_ptr, opt_tex_attachment);
@@ -554,8 +533,7 @@ oobj RTex_attach_set(oobj obj, oobj opt_tex_attachment)
 // render stuff
 //
 
-void RTex_clear_full(oobj obj, vec4 clear_color)
-{
+void RTex_clear_full(oobj obj, vec4 clear_color) {
     RTex_use(obj, 1);
 
     glClearColor(clear_color.r, clear_color.g, clear_color.b, clear_color.a);
@@ -564,8 +542,7 @@ void RTex_clear_full(oobj obj, vec4 clear_color)
     r_error_check("clear");
 }
 
-void RTex_clear(oobj obj, vec4 clear_color)
-{
+void RTex_clear(oobj obj, vec4 clear_color) {
     struct r_quad q = {0};
     // to get the full viewport
     q.pose = mat4_inv(RTex_proj(obj)->cam);
@@ -578,30 +555,25 @@ void RTex_clear(oobj obj, vec4 clear_color)
     RTex_quads(obj, RTex_L.s_quad, &q, 1);
 }
 
-void RTex_shader_ex(oobj obj, oobj shader, oobj buffer, int opt_num_rendered, const struct r_proj *opt_proj)
-{
+void RTex_shader_ex(oobj obj, oobj shader, oobj buffer, int opt_num_rendered, const struct r_proj *opt_proj) {
     RShader_render_ex(shader, buffer, obj, opt_num_rendered, opt_proj);
 }
 
-void RTex_ro_ex(oobj obj, oobj ro, const struct r_proj *opt_proj, bool update)
-{
+void RTex_ro_ex(oobj obj, oobj ro, const struct r_proj *opt_proj, bool update) {
     RObj_render_ex(ro, obj, opt_proj, update);
 }
 
-void RTex_quads(oobj obj, oobj shader, const struct r_quad *quads, int n)
-{
+void RTex_quads(oobj obj, oobj shader, const struct r_quad *quads, int n) {
     RBuffer_update(RTex_L.b_quad, quads, n);
     RTex_shader(obj, shader, RTex_L.b_quad);
 }
 
-void RTex_rects(oobj obj, oobj shader, const struct r_rect *rects, int n)
-{
+void RTex_rects(oobj obj, oobj shader, const struct r_rect *rects, int n) {
     RBuffer_update(RTex_L.b_rect, rects, n);
     RTex_shader(obj, shader, RTex_L.b_rect);
 }
 
-void RTex_blit_ex(oobj obj, oobj tex, mat4 pose, mat4 uv)
-{
+void RTex_blit_ex(oobj obj, oobj tex, mat4 pose, mat4 uv) {
     struct r_quad q = {0};
     q.pose = pose;
     q.uv = uv;
@@ -612,8 +584,7 @@ void RTex_blit_ex(oobj obj, oobj tex, mat4 pose, mat4 uv)
     RTex_quads(obj, RTex_L.s_quad, &q, 1);
 }
 
-void RTex_blit_color_ex(oobj obj, oobj tex, mat4 pose, mat4 uv, vec4 rgba, vec4 hsva)
-{
+void RTex_blit_color_ex(oobj obj, oobj tex, mat4 pose, mat4 uv, vec4 rgba, vec4 hsva) {
     struct r_quad q = {0};
     q.pose = pose;
     q.uv = uv;
@@ -626,17 +597,16 @@ void RTex_blit_color_ex(oobj obj, oobj tex, mat4 pose, mat4 uv, vec4 rgba, vec4 
     RTex_quads(obj, RTex_L.s_quad, &q, 1);
 }
 
-void RTex_blit_back_ex(oobj obj, ivec4 viewport_obj, ivec4 viewport_back, enum RTex_filter_modes filter)
-{
+void RTex_blit_back_ex(oobj obj, ivec4 viewport_obj, ivec4 viewport_back, enum RTex_filter_modes filter) {
     OObj_assert(obj, RTex);
     RTex *self = obj;
 
     RTex_use(self, 1);
 
-    if(viewport_obj.x < 0) {
+    if (viewport_obj.x < 0) {
         viewport_obj = self->viewport;
     }
-    if(viewport_back.x < 0) {
+    if (viewport_back.x < 0) {
         viewport_back = RTex_L.back_viewport;
     }
 
@@ -652,8 +622,7 @@ void RTex_blit_back_ex(oobj obj, ivec4 viewport_obj, ivec4 viewport_back, enum R
     r_error_check("RTex_blit_fbo_ex");
 }
 
-void RTex_blend_ex(oobj obj, oobj tex, mat4 pose, mat4 uv)
-{
+void RTex_blend_ex(oobj obj, oobj tex, mat4 pose, mat4 uv) {
     struct r_quad q = {0};
     q.pose = pose;
     q.uv = uv;
@@ -664,8 +633,7 @@ void RTex_blend_ex(oobj obj, oobj tex, mat4 pose, mat4 uv)
     RTex_quads(obj, RTex_L.s_quad, &q, 1);
 }
 
-void RTex_blend_color_ex(oobj obj, oobj tex, mat4 pose, mat4 uv, vec4 rgba, vec4 hsva)
-{
+void RTex_blend_color_ex(oobj obj, oobj tex, mat4 pose, mat4 uv, vec4 rgba, vec4 hsva) {
     struct r_quad q = {0};
     q.pose = pose;
     q.uv = uv;
@@ -683,8 +651,7 @@ void RTex_blend_color_ex(oobj obj, oobj tex, mat4 pose, mat4 uv, vec4 rgba, vec4
 //
 
 
-RTex* RTex_border(oobj obj, ivec4 lrbt, vec4 color, enum r_format format)
-{
+RTex *RTex_border(oobj obj, ivec4 lrbt, vec4 color, enum r_format format) {
     vec2 size = RTex_size(obj);
     size.x += lrbt.v0 + lrbt.v1;
     size.y += lrbt.v2 + lrbt.v3;
@@ -695,8 +662,7 @@ RTex* RTex_border(oobj obj, ivec4 lrbt, vec4 color, enum r_format format)
     return res;
 }
 
-void RTex_add_scaled_into(oobj obj, vec4 add, vec4 scale, oobj into)
-{
+void RTex_add_scaled_into(oobj obj, vec4 add, vec4 scale, oobj into) {
     struct r_quad q = r_quad_new(m_2(RTex_size(obj)));
     q.s = add;
     q.t = scale;
@@ -707,8 +673,7 @@ void RTex_add_scaled_into(oobj obj, vec4 add, vec4 scale, oobj into)
     RTex_quads(into, RTex_L.s_quad, &q, 1);
 }
 
-void RTex_mixer_into(oobj obj, mat4 rgba_matrix, oobj into)
-{
+void RTex_mixer_into(oobj obj, mat4 rgba_matrix, oobj into) {
     struct r_quad q = r_quad_new(m_2(RTex_size(obj)));
     q.stuv = rgba_matrix;
 
@@ -718,8 +683,7 @@ void RTex_mixer_into(oobj obj, mat4 rgba_matrix, oobj into)
     RTex_quads(into, RTex_L.s_quad, &q, 1);
 }
 
-void RTex_inv_into(oobj obj, vec4 inv_mask, oobj into)
-{
+void RTex_inv_into(oobj obj, vec4 inv_mask, oobj into) {
     mat4 mix;
     mix.col[0] = vec4_(inv_mask.r, 0, 0, 0);
     mix.col[1] = vec4_(0, inv_mask.g, 0, 0);
@@ -728,19 +692,17 @@ void RTex_inv_into(oobj obj, vec4 inv_mask, oobj into)
     RTex_mixer_into(obj, mix, into);;
 }
 
-void RTex_channels_into(oobj obj, ivec4 channel, oobj into)
-{
+void RTex_channels_into(oobj obj, ivec4 channel, oobj into) {
     mat4 mix;
-    for(int i=0; i<4; i++) {
-        for(int j=0; j<4; j++) {
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
             mix.col[i].v[j] = (float) (channel.v[i] == j);
         }
     }
     RTex_mixer_into(obj, mix, into);
 }
 
-void RTex_channels_merge_into(oobj r, oobj g, oobj b, oobj a, oobj into)
-{
+void RTex_channels_merge_into(oobj r, oobj g, oobj b, oobj a, oobj into) {
     struct r_quad q = r_quad_new(m_2(RTex_size(r)));
 
     RShaderQuadChannelmerge_r_set(RTex_L.s_quad_channelmerge, r);
@@ -751,8 +713,7 @@ void RTex_channels_merge_into(oobj r, oobj g, oobj b, oobj a, oobj into)
     RTex_quads(into, RTex_L.s_quad_channelmerge, &q, 1);
 }
 
-void RTex_color_into(oobj obj, vec4 rgba, vec4 hsva, oobj into)
-{
+void RTex_color_into(oobj obj, vec4 rgba, vec4 hsva, oobj into) {
     struct r_quad q = r_quad_new(m_2(RTex_size(obj)));
     q.s = rgba;
     q.t = hsva;
@@ -763,8 +724,7 @@ void RTex_color_into(oobj obj, vec4 rgba, vec4 hsva, oobj into)
     RTex_quads(into, RTex_L.s_quad, &q, 1);
 }
 
-void RTex_rgba_to_hsva_into(oobj obj, oobj into)
-{
+void RTex_rgba_to_hsva_into(oobj obj, oobj into) {
     struct r_quad q = r_quad_new(m_2(RTex_size(obj)));
 
     RShaderQuad_tex_set(RTex_L.s_quad, obj, false);
@@ -773,8 +733,7 @@ void RTex_rgba_to_hsva_into(oobj obj, oobj into)
     RTex_quads(into, RTex_L.s_quad, &q, 1);
 }
 
-void RTex_hsva_rgba_into(oobj obj, oobj into)
-{
+void RTex_hsva_rgba_into(oobj obj, oobj into) {
     struct r_quad q = r_quad_new(m_2(RTex_size(obj)));
 
     RShaderQuad_tex_set(RTex_L.s_quad, obj, false);
@@ -783,10 +742,9 @@ void RTex_hsva_rgba_into(oobj obj, oobj into)
     RTex_quads(into, RTex_L.s_quad, &q, 1);
 }
 
-void RTex_conv_into(oobj obj, oobj kernel, ivec2 offset, oobj into)
-{
+void RTex_conv_into(oobj obj, oobj kernel, ivec2 offset, oobj into) {
     struct r_quad q = r_quad_new(m_2(RTex_size(obj)));
-    
+
     RShaderQuad_tex_set(RTex_L.s_quad_kernel, obj, false);
     RShader_blend_set(RTex_L.s_quad_kernel, false);
     RShaderQuadKernel_kernel_set(RTex_L.s_quad_kernel, kernel, false);
@@ -796,22 +754,19 @@ void RTex_conv_into(oobj obj, oobj kernel, ivec2 offset, oobj into)
     RTex_quads(into, RTex_L.s_quad_kernel, &q, 1);
 }
 
-void RTex_blur_into(oobj obj, ivec2 size, oobj into)
-{
+void RTex_blur_into(oobj obj, ivec2 size, oobj into) {
     oobj kernel = RTex_new_kernel(obj, m_2(size), 1.0f, false, 1.0f);
     RTex_conv_into(obj, kernel, ivec2_(0), into);
     o_del(kernel);
 }
 
-void RTex_gauss_into(oobj obj, ivec2 size, vec2 sigma, oobj into)
-{
+void RTex_gauss_into(oobj obj, ivec2 size, vec2 sigma, oobj into) {
     oobj kernel = RTex_new_kernel_gauss(obj, m_2(size), sigma, 1.0f);
     RTex_conv_into(obj, kernel, ivec2_(0), into);
     o_del(kernel);
 }
 
-void RTex_dilate_into(oobj obj, oobj kernel, ivec2 offset, vec4 mask, vec4 color, oobj into)
-{
+void RTex_dilate_into(oobj obj, oobj kernel, ivec2 offset, vec4 mask, vec4 color, oobj into) {
     struct r_quad q = r_quad_new(m_2(RTex_size(obj)));
 
     RShaderQuad_tex_set(RTex_L.s_quad_kernel, obj, false);
@@ -824,8 +779,7 @@ void RTex_dilate_into(oobj obj, oobj kernel, ivec2 offset, vec4 mask, vec4 color
     RTex_quads(into, RTex_L.s_quad_kernel, &q, 1);
 }
 
-void RTex_erode_into(oobj obj, oobj kernel, ivec2 offset, vec4 mask, vec4 color, oobj into)
-{
+void RTex_erode_into(oobj obj, oobj kernel, ivec2 offset, vec4 mask, vec4 color, oobj into) {
     struct r_quad q = r_quad_new(m_2(RTex_size(obj)));
 
     RShaderQuad_tex_set(RTex_L.s_quad_kernel, obj, false);
@@ -838,41 +792,38 @@ void RTex_erode_into(oobj obj, oobj kernel, ivec2 offset, vec4 mask, vec4 color,
     RTex_quads(into, RTex_L.s_quad_kernel, &q, 1);
 }
 
-void RTex_contour_into(oobj obj, oobj kernel, ivec2 offset, vec4 mask, vec4 color, oobj into)
-{
+void RTex_contour_into(oobj obj, oobj kernel, ivec2 offset, vec4 mask, vec4 color, oobj into) {
     RTex_dilate_into(obj, kernel, offset, mask, color, into);
     RTex_blend(into, obj, 0, 0);
 }
 
-void RTex_outline_into(oobj obj, ivec2 size, ivec2 offset, vec4 mask, vec4 color, oobj into)
-{
+void RTex_outline_into(oobj obj, ivec2 size, ivec2 offset, vec4 mask, vec4 color, oobj into) {
     oobj kernel = RTex_new_kernel(obj, m_2(size), 1.0f, true, -1);
     RTex_contour_into(obj, kernel, offset, mask, color, into);
     o_del(kernel);
 }
 
-RTex *RTex_collage(const oobj *srcs, int n, int cols, ivec2 margin, vec4 bg_color, enum r_format format)
-{
+RTex *RTex_collage(const oobj *srcs, int n, int cols, ivec2 margin, vec4 bg_color, enum r_format format) {
     assert(n>=1);
     assert(margin.x>=0 && margin.y>=0);
 
     ivec2 grid_size = ivec2_(0);
-    for(int i=0; i<n; i++) {
+    for (int i = 0; i < n; i++) {
         ivec2 size = RTex_size_int(srcs[i]);
         grid_size = ivec2_max_v(grid_size, size);
     }
     grid_size = ivec2_add_v(grid_size, ivec2_scale(margin, 2));
 
-    int rows = (int) m_ceil((float) n / (float)  cols);
+    int rows = (int) m_ceil((float) n / (float) cols);
 
     ivec2 full_size = ivec2_scale_v(grid_size, ivec2_(cols, rows));
 
     RTex *res = RTex_new_ex(srcs[0], NULL, m_2(full_size), format, format);
     RTex_clear_full(res, bg_color);
 
-    for(int i=0; i<n; i++) {
-        int c = i%cols;
-        int r = i/cols;
+    for (int i = 0; i < n; i++) {
+        int c = i % cols;
+        int r = i / cols;
 
         vec2 pos = vec2_((grid_size.x-full_size.x)/2.0f, (full_size.y-grid_size.y)/2.0f);
         pos.x += c * grid_size.x;
@@ -884,8 +835,7 @@ RTex *RTex_collage(const oobj *srcs, int n, int cols, ivec2 margin, vec4 bg_colo
     return res;
 }
 
-void RTex_merge_into(oobj obj, oobj tex, oobj opt_mask_a, oobj opt_mask_b, vec4 rgba, oobj into)
-{
+void RTex_merge_into(oobj obj, oobj tex, oobj opt_mask_a, oobj opt_mask_b, vec4 rgba, oobj into) {
     struct r_quad q = r_quad_new(m_2(RTex_size(obj)));
     q.s = rgba;
 

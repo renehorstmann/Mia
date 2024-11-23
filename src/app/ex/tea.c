@@ -12,7 +12,7 @@
  */
 
 
-#include "ex/tea.h"
+#include "app/ex/tea.h"
 #include "mia.h"
 
 

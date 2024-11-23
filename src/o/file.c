@@ -6,17 +6,17 @@
 #include <SDL2/SDL_system.h>
 
 // list dir and check file type stuff
-#include <dirent.h>
+#include "file_dirent.h"
 #include <sys/stat.h>
 
 // mkdirs
 #ifdef MIA_PLATFORM_WINDOWS
 #include <direct.h>
 #else
-
 #include <unistd.h>
-
 #endif
+
+
 
 #define O_LOG_LIB "o"
 

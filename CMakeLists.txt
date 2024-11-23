@@ -31,8 +31,8 @@ set(USE_BUNDLE_A false)
 set(USE_BUNDLE_U false)
 set(USE_BUNDLE_W false)
 set(USE_BUNDLE_X false)
-set(USE_BUNDLE_EX false)
-set(USE_BUNDLE_MP false)
+set(USE_BUNDLE_APP_EX false)
+set(USE_BUNDLE_APP_MP false)
 
 set(USE_BUNDLES true)
 
@@ -45,8 +45,8 @@ if(USE_BUNDLES)
     set(USE_BUNDLE_U true)
     set(USE_BUNDLE_W true)
     set(USE_BUNDLE_X true)
-    set(USE_BUNDLE_EX true)
-    set(USE_BUNDLE_MP true)
+    set(USE_BUNDLE_APP_EX true)
+    set(USE_BUNDLE_APP_MP true)
 endif()
 
 # see logo/ dirs; mainly for the emscripten build
@@ -179,30 +179,30 @@ endif()
 
 
 # App Module EX
-set(EX_SRCS "")
+set(APP_EX_SRCS "")
 if(USE_APP_EX)
     message("Building app module EX")
-    if(USE_BUNDLE_EX)
+    if(USE_BUNDLE_APP_EX)
         message("Unity bundle build for app module EX")
-        add_definitions(-DMIA_BUNDLE_EX)
-        set(EX_SRCS "${PROJECT_SOURCE_DIR}/src/ex/ex.c")
+        add_definitions(-DMIA_BUNDLE_APP_EX)
+        set(APP_EX_SRCS "${PROJECT_SOURCE_DIR}/src/app/ex/ex.c")
     else()
-        file(GLOB EX_SRCS "${PROJECT_SOURCE_DIR}/src/ex/*.c")
-        list(REMOVE_ITEM EX_SRCS "${PROJECT_SOURCE_DIR}/src/ex/ex.c")
+        file(GLOB APP_EX_SRCS "${PROJECT_SOURCE_DIR}/src/app/ex/*.c")
+        list(REMOVE_ITEM APP_EX_SRCS "${PROJECT_SOURCE_DIR}/src/app/ex/ex.c")
     endif()
 endif()
 
 # App Module
-set(MP_SRCS "")
+set(APP_MP_SRCS "")
 if(USE_APP_MP)
     message("Building app module MP")
-    if(USE_BUNDLE_MP)
+    if(USE_BUNDLE_APP_MP)
         message("Unity bundle build for app module MP")
-        add_definitions(-DMIA_BUNDLE_MP)
-        set(MP_SRCS "${PROJECT_SOURCE_DIR}/src/mp/mp.c")
+        add_definitions(-DMIA_BUNDLE_APP_MP)
+        set(APP_MP_SRCS "${PROJECT_SOURCE_DIR}/src/app/mp/mp.c")
     else()
-        file(GLOB MP_SRCS "${PROJECT_SOURCE_DIR}/src/mp/*.c")
-        list(REMOVE_ITEM MP_SRCS "${PROJECT_SOURCE_DIR}/src/mp/mp.c")
+        file(GLOB APP_MP_SRCS "${PROJECT_SOURCE_DIR}/src/app/mp/*.c")
+        list(REMOVE_ITEM APP_MP_SRCS "${PROJECT_SOURCE_DIR}/src/app/mp/mp.c")
     endif()
 endif()
 
@@ -219,8 +219,8 @@ list(APPEND SRCS
         ${U_SRCS}
         ${W_SRCS}
         ${X_SRCS}
-        ${EX_SRCS}
-        ${MP_SRCS}
+        ${APP_EX_SRCS}
+        ${APP_MP_SRCS}
 )
 
 if(USE_TESTS)

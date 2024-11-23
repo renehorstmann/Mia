@@ -78,6 +78,10 @@ struct oobj_opt s_ogg_load_array(oobj parent, const char *file, const struct s_a
 
     ogg_data = loadOggMemory(o_at(memory.o, 0), (int) o_num(memory.o),
                              &ogg_audio_length, &ogg_channels, &ogg_sample_rate);
+    if(!ogg_data) {
+        o_log_error_s(__func__, "Failed to parse ogg file %s", file);
+        goto CLEAN_UP;
+    }
 
     // Build the audio conversion structure
     SDL_AudioCVT cvt;
